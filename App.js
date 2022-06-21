@@ -8,20 +8,13 @@ export default class App extends React.Component {
   state = {
     redirectData: null,
   };
-
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.header}>Redirect Example</Text>
-
         <Button
           onPress={this._openBrowserAsync}
           title="Tap here to try it out with openBrowserAsync"
-        />
-
-        <Button
-          onPress={this._openAuthSessionAsync}
-          title="Tap here to try it out with openAuthSessionAsync"
         />
 
         {this._maybeRenderRedirectData()}
@@ -41,26 +34,6 @@ export default class App extends React.Component {
     this.setState({ redirectData: data });
   };
 
-  // openAuthSessionAsync doesn't require that you add Linking listeners, it
-  // returns the redirect URL in the resulting Promise
-  _openAuthSessionAsync = async () => {
-    try {
-      let result = await WebBrowser.openAuthSessionAsync(
-        // We add `?` at the end of the URL since the test backend that is used
-        // just appends `authToken=<token>` to the URL provided.
-        `https://backend-xxswjknyfi.now.sh/?linkingUri=${Linking.createURL("/?")}`
-      );
-      let redirectData;
-      if (result.url) {
-        redirectData = Linking.parse(result.url);
-      }
-      this.setState({ result, redirectData });
-    } catch (error) {
-      alert(error);
-      console.log(error);
-    }
-  };
-
   // openBrowserAsync requires that you subscribe to Linking events and the
   // resulting Promise only contains information about whether it was canceled
   // or dismissed
@@ -68,12 +41,16 @@ export default class App extends React.Component {
     try {
       this._addLinkingListener();
       let result = await WebBrowser.openBrowserAsync(
-        // We add `?` at the end of the URL since the test backend that is used
-        // just appends `authToken=<token>` to the URL provided.
-        `https://backend-xxswjknyfi.now.sh/?linkingUri=${Linking.createURL("/?")}`
+        `https://backend-xxswjknyfi.now.sh/?linkingUri=${Linking.createURL(
+          '/',
+          {
+            isTripleSlashed: false,
+            queryParams: { naveed: `developer ` },
+            scheme: 'naveed://',
+          }
+        )}`
       );
 
-      // https://github.com/expo/expo/issues/5555
       if (Constants.platform.ios) {
         this._removeLinkingListener();
       }
@@ -86,11 +63,11 @@ export default class App extends React.Component {
   };
 
   _addLinkingListener = () => {
-    Linking.addEventListener("url", this._handleRedirect);
+    Linking.addEventListener('url', this._handleRedirect);
   };
 
   _removeLinkingListener = () => {
-    Linking.removeEventListener("url", this._handleRedirect);
+    Linking.removeEventListener('url', this._handleRedirect);
   };
 
   _maybeRenderRedirectData = () => {
@@ -109,9 +86,9 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingBottom: 40,
   },
   header: {
